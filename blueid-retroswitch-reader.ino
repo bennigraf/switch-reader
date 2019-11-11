@@ -24,35 +24,37 @@ void setup() {
   }
   FastLED.show();
   delay(1000);
+
+  Serial.begin(9600);
 }
 
 //uint8_t openCloseCounter = 7; // 0 is closed; 11 is open
-uint8_t wasActivatedCounter = 0;
-uint8_t wasDeactivatedCounter = 0;
+int wasActivatedCounter = -1;
+int wasDeactivatedCounter = -1;
 
 void loop() {
 
   bool deviceIsActive = digitalRead(3) == LOW;
 
-  if (wasActivatedCounter == 0 && deviceIsActive) {
+  if (wasActivatedCounter < 0 && deviceIsActive) {
     wasActivatedCounter += 1; 
-  }
-  if (wasActivatedCounter > 0 && wasActivatedCounter < NUM_LEDS) {
+  } else if (wasActivatedCounter >= 0 && wasActivatedCounter < NUM_LEDS) {
     wasActivatedCounter += 1; 
-  }
-  if (wasActivatedCounter == NUM_LEDS && !deviceIsActive) {
-    wasActivatedCounter = 0;
+  } else if (wasActivatedCounter == NUM_LEDS && !deviceIsActive) {
+    wasActivatedCounter = -1;
   }
 
-  if (wasDeactivatedCounter == 0 && !deviceIsActive) {
+  if (wasDeactivatedCounter < 0 && !deviceIsActive) {
     wasDeactivatedCounter += 1; 
-  }
-  if (wasDeactivatedCounter > 0 && wasDeactivatedCounter < NUM_LEDS) {
+  } else if (wasDeactivatedCounter >= 0 && wasDeactivatedCounter < NUM_LEDS) {
     wasDeactivatedCounter += 1; 
+  } else if (wasDeactivatedCounter == NUM_LEDS && deviceIsActive) {
+    wasDeactivatedCounter = -1;
   }
-  if (wasDeactivatedCounter == NUM_LEDS && deviceIsActive) {
-    wasDeactivatedCounter = 0;
-  }
+
+  Serial.print(wasActivatedCounter);
+  Serial.print(" ");
+  Serial.println(wasDeactivatedCounter);
 
   for (int i = 0; i < NUM_LEDS; i++) {
     if (wasActivatedCounter == i) {
